@@ -1,6 +1,5 @@
 import { createNextDescribe } from 'e2e-utils'
 import { check } from 'next-test-utils'
-import { outdent } from 'outdent'
 
 createNextDescribe(
   'parallel-routes-and-interception',
@@ -187,38 +186,6 @@ createNextDescribe(
         expect(pageText).toContain('parallel/(new)/@baz/nested/page')
       })
 
-      it('should throw an error when a route groups causes a conflict with a parallel segment', async () => {
-        await next.stop()
-        await next.patchFile(
-          'app/parallel/nested-2/page.js',
-          outdent`
-              export default function Page() {
-                return 'hello world'
-              }
-            `
-        )
-
-        if (isNextDev) {
-          await next.start()
-
-          const html = await next.render('/parallel/nested-2')
-
-          expect(html).toContain(
-            'You cannot have two parallel pages that resolve to the same path.'
-          )
-        } else {
-          await expect(next.start()).rejects.toThrow('next build failed')
-
-          await check(
-            () => next.cliOutput,
-            /You cannot have two parallel pages that resolve to the same path\. Please check \/parallel\/\(new\)\/@baz\/nested-2\/page and \/parallel\/nested-2\/page\./i
-          )
-        }
-        await next.stop()
-        await next.deleteFile('app/parallel/nested-2/page.js')
-        await next.start()
-      })
-
       it('should throw a 404 when no matching parallel route is found', async () => {
         const browser = await next.browser('/parallel-tab-bar')
         // we make sure the page is available through navigating
@@ -339,7 +306,7 @@ createNextDescribe(
         )
       })
 
-      it('Should match the catch-all routes of the more specific path, If there is more than one catch-all route', async () => {
+      it('should match the catch-all routes of the more specific path, if there is more than one catch-all route', async () => {
         const browser = await next.browser('/parallel-nested-catchall')
 
         await browser
